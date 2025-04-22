@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>注文フォーム</title>
+  <style>
+ body {
+  background-image: url('hu-sh.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+    .container {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .menu-item {
+    background-color: #dbe5ec;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease; /* ← 追加済み */
+  }
+    .menu-item:hover {
+  background-color: #e6f7ff; /* 薄い水色で爽やかに */
+  transition: background-color 0.3s ease;
+}
+
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 0.8rem;
+      resize: vertical;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.2rem;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 0.8rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #43a047;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <form id="orderForm">
+      <div class="menu-item">
+        <span>レバー</span>
+        <select name="レバー">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div class="menu-item">
+        <span>蕎麦</span>
+        <select name="蕎麦">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div class="menu-item">
+        <span>天ぷら蕎麦</span>
+        <select name="天ぷら蕎麦">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div class="menu-item">
+        <span>ラーメン</span>
+        <select name="ラーメン">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div class="menu-item">
+        <span>チャーシューメン</span>
+        <select name="チャーシューメン">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <textarea name="note" rows="3" placeholder="備考：アレルギーや要望など"></textarea>
+
+      <button type="submit">注文する</button>
+      <div id="status" class="status"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("orderForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const items = ["レバー", "蕎麦", "天ぷら蕎麦", "ラーメン", "チャーシューメン"];
+      const order = {};
+      let total = 0; // ← 合計数をカウント
+
+    items.forEach(item => {
+      const count = parseInt(formData.get(item), 10);
+      order[item] = count;
+      total += count;
+    });
+
+    if (total === 0) {
+      document.getElementById("status").textContent = "1つ以上注文してください。";
+      return;
+    }
+
+    const note = formData.get("note") || "";
+
+      // Google Apps Script のデプロイURL
+      const GAS_URL = "https://script.google.com/macros/s/AKfycbwTMZzBAae4bnimb_t1w8XujdXApp74BHCbgzTw3oWbSPJZDUcg50alyypt1CAlm-j_/exec";
+
+      await fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors", // 応答は受け取れないがOK
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ order, note })
+      });
+
+      document.getElementById("status").textContent = "ご注文ありがとうございます！";
+      form.reset();
+    });
+  </script>
+
+</body>
+</html>
